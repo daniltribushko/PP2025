@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pp_2025
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password: 123
+  jpa:
+    hibernate:
+      ddl-auto: update
+  flyway:
+    enabled: false
+token:
+  secret: aV7Bp76uCWEfZS5/oc0W64lurKpB8G/6xxctwVxuLVY=
