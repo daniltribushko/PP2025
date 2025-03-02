@@ -1,5 +1,6 @@
 package ru.tdd.backend.model.dto.users;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import ru.tdd.backend.model.DtoVersion;
 import ru.tdd.backend.model.dto.BaseDto;
 import ru.tdd.backend.model.users.UserState;
@@ -7,12 +8,14 @@ import ru.tdd.backend.model.users.UserState;
 import java.time.LocalDateTime;
 
 /** Dto пользователя */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto extends DtoVersion  {
     private Long id;
     private String email;
     private String lastName;
     private String middleName;
     private String firstName;
+    private String password;
     private BaseDto role;
     private UserState userState;
 
@@ -22,6 +25,7 @@ public class UserDto extends DtoVersion  {
             String lastName,
             String middleName,
             String firstName,
+            String password,
             BaseDto role,
             UserState userState,
             LocalDateTime creationDate,
@@ -33,6 +37,7 @@ public class UserDto extends DtoVersion  {
         this.lastName = lastName;
         this.middleName = middleName;
         this.firstName = firstName;
+        this.password = password;
         this.role = role;
         this.userState = userState;
     }
@@ -47,6 +52,7 @@ public class UserDto extends DtoVersion  {
         private String lastName;
         private String middleName;
         private String firstName;
+        private String password;
         private BaseDto role;
         private UserState userState;
         private LocalDateTime creationDate;
@@ -77,6 +83,11 @@ public class UserDto extends DtoVersion  {
             return this;
         }
 
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
         public Builder role(BaseDto role) {
             this.role = role;
             return this;
@@ -104,6 +115,7 @@ public class UserDto extends DtoVersion  {
                     this.lastName,
                     this.middleName,
                     this.firstName,
+                    this.password,
                     this.role,
                     this.userState,
                     this.creationDate,
@@ -168,5 +180,13 @@ public class UserDto extends DtoVersion  {
 
     public void setUserState(UserState userState) {
         this.userState = userState;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

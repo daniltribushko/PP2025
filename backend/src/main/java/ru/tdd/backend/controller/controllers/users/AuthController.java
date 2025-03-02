@@ -1,5 +1,6 @@
-package ru.tdd.backend.controller.controllers;
+package ru.tdd.backend.controller.controllers.users;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,6 +29,7 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @Operation(summary = "Sign-Up", description = "Регистрация пользователей")
     @ApiResponses(
             value = {
                     @ApiResponse(
@@ -69,7 +71,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.signUp(signUp));
     }
 
-
+    @Operation(summary = "Sign-In", description = "Авторизация пользователя")
     @ApiResponses(
             value = {
                     @ApiResponse(
