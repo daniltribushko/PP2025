@@ -9,6 +9,7 @@ import ru.tdd.backend.model.dto.DtoEntity;
 import ru.tdd.backend.model.dto.users.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -111,7 +112,9 @@ public class User extends EntityVersion implements UserDetails, DtoEntity<UserDt
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getName()));
+        List<GrantedAuthority> roles = new ArrayList<>();
+        roles.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+        return roles;
     }
 
     @Override

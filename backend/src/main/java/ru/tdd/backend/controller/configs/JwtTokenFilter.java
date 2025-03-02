@@ -60,6 +60,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                 user.getAuthorities()
                         )
                 );
+                SecurityContextHolder.setContext(context);
             }
             doFilter(request, response, filterChain);
         }

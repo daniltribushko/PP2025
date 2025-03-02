@@ -7,10 +7,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.tdd.backend.domen.service.users.UserService;
 import ru.tdd.backend.model.dto.exceptions.ExceptionDTO;
@@ -19,11 +22,12 @@ import ru.tdd.backend.model.exceptions.UserAccessDeniedException;
 import ru.tdd.backend.model.users.User;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Objects;
 
 @CrossOrigin
 @RestController
-@RequestMapping("users")
+@RequestMapping("/users")
 @Tag(name = "User Controller")
 @SecurityRequirement(name = "jwtAuth")
 public class UserController {
@@ -57,8 +61,12 @@ public class UserController {
             }
     )
     @GetMapping("/{id}")
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
-    public ResponseEntity<UserDto> findById(@PathVariable Long id) {
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
+    public ResponseEntity<UserDto> findById(
+            @PathVariable
+            @Min(value = 1, message = "Идентификатор пользователя должен быть положительным числом")
+            Long id
+    ) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getById(id));
     }
 
@@ -89,8 +97,12 @@ public class UserController {
     )
     @DeleteMapping("/{id}")
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
-    public ResponseEntity<?> delete(@PathVariable Long id, Principal principal) {
-        User user = (User) principal;
+    public ResponseEntity<?> delete(
+            @PathVariable
+            @Min(value = 1, message = "Идентификатор пользователя должен быть положительным числом")
+            Long id
+    ) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!Objects.equals(id, user.getId()) && !user.isAdmin()) {
             throw new UserAccessDeniedException(user.getEmail());
         }
@@ -128,12 +140,40 @@ public class UserController {
             }
     )
     @PutMapping("")
-    @Secured("ROLE_USER")
-    public ResponseEntity<UserDto> update(UserDto userDto, Principal principal) {
-        User user = (User) principal;
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    public ResponseEntity<UserDto> update(@Valid @RequestBody UserDto userDto) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!Objects.equals(userDto.getId(), user.getId())) {
             throw new UserAccessDeniedException(user.getEmail());
         }
         return ResponseEntity.status(HttpStatus.OK).body(userService.update(userDto));
+    }
+
+    @Operation(summary = "Find All", description = "Поиск списка пользователей по параметрам")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Пользователи найдены",
+                            content = @Content(
+                                    schema = @Schema(implementation = UserDto.class),
+                                    mediaType = "application/json"
+                            )
+                    )
+            }
+    )
+    @GetMapping("/all")
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    public ResponseEntity<List<UserDto>> findAll(
+            @RequestParam(required = false)
+            String role,
+            @RequestParam(defaultValue = "0")
+            @Min(value = 0, message = "Номер страницы должен быть больше либо равен 0")
+            Integer page,
+            @RequestParam(defaultValue = "1")
+            @Min(value = 1, message = "Количество записей на странице должно быть больше 1")
+            Integer perPage
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findAll(role, page, perPage));
     }
 }
