@@ -29,7 +29,10 @@ public class OpenApiConfig {
                         List.of(
                                 new Tag()
                                         .name("Auth Controller")
-                                        .description("Контроллер для авторизации и регистрации пользователей")
+                                        .description("Контроллер для авторизации и регистрации пользователей"),
+                                new Tag()
+                                        .name("User Controller")
+                                        .description("Контроллер для работы с пользователями")
                         )
                 );
     }

@@ -52,7 +52,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
     @Override
     public boolean validateToken(String token, String email) {
         Claims claims = parseToken(token);
-        return new Date().after(claims.getExpiration()) &&
+        return new Date().before(claims.getExpiration()) &&
                 Objects.equals(claims.getSubject(), email);
     }
 
