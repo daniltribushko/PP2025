@@ -14,8 +14,8 @@ import ru.tdd.backend.model.dto.users.UserDto;
 import ru.tdd.backend.model.exceptions.users.RoleByNameNotFoundException;
 import ru.tdd.backend.model.exceptions.users.UserByEmailNotFoundException;
 import ru.tdd.backend.model.exceptions.users.UserByIdNotFoundException;
-import ru.tdd.backend.model.users.Role;
-import ru.tdd.backend.model.users.User;
+import ru.tdd.backend.model.entities.users.Role;
+import ru.tdd.backend.model.entities.users.User;
 
 import java.time.LocalDateTime;
 import java.util.List;

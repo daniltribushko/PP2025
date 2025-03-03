@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import ru.tdd.backend.domen.service.RUDDtoService;
 import ru.tdd.backend.model.dto.ObjectDto;
 import ru.tdd.backend.model.dto.users.UserDto;
-import ru.tdd.backend.model.users.Role;
 
 import java.util.List;
 
@@ -17,5 +16,6 @@ public interface UserService extends RUDDtoService<UserDto> {
             @Min(value = 0, message = "Номер страницы должен быть больше либо равен 0")
             Integer page,
             @Min(value = 1, message = "Количество записей на странице должно быть больше 1")
-            Integer perPage);
+            Integer perPage
+    );
 }

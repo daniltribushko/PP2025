@@ -19,9 +19,8 @@ import ru.tdd.backend.domen.service.users.UserService;
 import ru.tdd.backend.model.dto.exceptions.ExceptionDTO;
 import ru.tdd.backend.model.dto.users.UserDto;
 import ru.tdd.backend.model.exceptions.UserAccessDeniedException;
-import ru.tdd.backend.model.users.User;
+import ru.tdd.backend.model.entities.users.User;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
 

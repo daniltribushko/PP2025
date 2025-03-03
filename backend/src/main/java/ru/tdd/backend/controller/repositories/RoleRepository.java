@@ -1,7 +1,7 @@
 package ru.tdd.backend.controller.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.tdd.backend.model.users.Role;
+import ru.tdd.backend.model.entities.users.Role;
 
 import java.util.Optional;
 

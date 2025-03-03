@@ -1,7 +1,7 @@
 package ru.tdd.backend.domen.service.jwt;
 
 import io.jsonwebtoken.Claims;
-import ru.tdd.backend.model.users.User;
+import ru.tdd.backend.model.entities.users.User;
 
 /** Сервис для работы с jwt токенами*/
 public interface JwtTokenService {

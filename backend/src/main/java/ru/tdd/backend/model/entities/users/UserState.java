@@ -1,4 +1,4 @@
-package ru.tdd.backend.model.users;
+package ru.tdd.backend.model.entities.users;
 
 /** Состояние пользователя */
 public enum UserState {

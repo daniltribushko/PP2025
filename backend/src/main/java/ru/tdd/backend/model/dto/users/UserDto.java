@@ -1,9 +1,9 @@
 package ru.tdd.backend.model.dto.users;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import ru.tdd.backend.model.DtoVersion;
+import ru.tdd.backend.model.dto.DtoVersion;
 import ru.tdd.backend.model.dto.BaseDto;
-import ru.tdd.backend.model.users.UserState;
+import ru.tdd.backend.model.entities.users.UserState;
 
 import java.time.LocalDateTime;
 
