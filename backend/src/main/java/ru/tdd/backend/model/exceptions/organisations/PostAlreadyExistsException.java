@@ -1,9 +1,9 @@
 package ru.tdd.backend.model.exceptions.organisations;
 
-import ru.tdd.backend.model.exceptions.NotFoundException;
+import ru.tdd.backend.model.exceptions.AlreadyExistsException;
 
-public class PostAlreadyExistsException extends NotFoundException {
+public class PostAlreadyExistsException extends AlreadyExistsException {
     public PostAlreadyExistsException(String name) {
-        super("Должность с указаннмы именем: " + name + " не найдена");
+        super("Должность с указаннмы именем: " + name + " уже существует");
     }
 }

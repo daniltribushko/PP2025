@@ -9,9 +9,11 @@ import java.util.List;
 
 @Repository
 public interface PostPagingRepository extends PagingAndSortingRepository<Post, Long> {
-    List<Post> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrderByName(
+    List<Post> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrderById(
             String name,
             String description,
             Pageable pageable
     );
+
+    List<Post> findAllByOrderById(Pageable pageable);
 }

@@ -44,13 +44,20 @@ public class PostServiceImp implements PostService {
 
     @Override
     public List<DictionaryDto> findAll(String text, Integer page, Integer perPage) {
-        return postPagingRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrderByName(
-                        text,
-                        text,
-                        PageRequest.of(page, perPage)
-                ).stream()
-                .map(Post::toDto)
-                .toList();
+        if (text != null) {
+            return postPagingRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrderById(
+                            text,
+                            text,
+                            PageRequest.of(page, perPage))
+                    .stream()
+                    .map(Post::toDto)
+                    .toList();
+        } else {
+            return postPagingRepository.findAllByOrderById(PageRequest.of(page, perPage))
+                    .stream()
+                    .map(Post::toDto)
+                    .toList();
+        }
     }
 
     @Override

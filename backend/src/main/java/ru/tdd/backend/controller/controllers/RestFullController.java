@@ -17,7 +17,7 @@ public interface RestFullController<DTO> {
     ResponseEntity<DTO> getById(@PathVariable Long id);
     @GetMapping("/all")
     ResponseEntity<List<DTO>> findAll(
-            @RequestParam(required = false)
+            @RequestParam(required = false, defaultValue = "")
             String text,
             @RequestParam(defaultValue = "0")
             Integer page,

@@ -32,7 +32,10 @@ public class OpenApiConfig {
                                         .description("Контроллер для авторизации и регистрации пользователей"),
                                 new Tag()
                                         .name("User Controller")
-                                        .description("Контроллер для работы с пользователями")
+                                        .description("Контроллер для работы с пользователями"),
+                                new Tag()
+                                        .name("Post Controller")
+                                        .description("Контроллер для работы с должностями")
                         )
                 );
     }

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import ru.tdd.backend.domen.annotations.SecuredAdminUser;
 import ru.tdd.backend.domen.service.users.UserService;
 import ru.tdd.backend.model.dto.exceptions.ExceptionDTO;
 import ru.tdd.backend.model.dto.users.UserDto;
@@ -60,7 +61,7 @@ public class UserController {
             }
     )
     @GetMapping("/{id}")
-    @Secured({"ROLE_ADMIN", "ROLE_USER"})
+    @SecuredAdminUser
     public ResponseEntity<UserDto> findById(
             @PathVariable
             @Min(value = 1, message = "Идентификатор пользователя должен быть положительным числом")
@@ -95,7 +96,7 @@ public class UserController {
             }
     )
     @DeleteMapping("/{id}")
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @SecuredAdminUser
     public ResponseEntity<?> delete(
             @PathVariable
             @Min(value = 1, message = "Идентификатор пользователя должен быть положительным числом")
@@ -139,7 +140,7 @@ public class UserController {
             }
     )
     @PutMapping("")
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @SecuredAdminUser
     public ResponseEntity<UserDto> update(@Valid @RequestBody UserDto userDto) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!Objects.equals(userDto.getId(), user.getId())) {
@@ -162,7 +163,7 @@ public class UserController {
             }
     )
     @GetMapping("/all")
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @SecuredAdminUser
     public ResponseEntity<List<UserDto>> findAll(
             @RequestParam(required = false)
             String role,

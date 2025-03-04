@@ -21,6 +21,7 @@ public class DictionaryDto extends BaseDto {
 
     public DictionaryDto(Long id, String name, String description) {
         super(name);
+        this.id = id;
         this.description = description;
     }
 
