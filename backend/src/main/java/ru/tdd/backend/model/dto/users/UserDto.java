@@ -1,6 +1,9 @@
 package ru.tdd.backend.model.dto.users;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import ru.tdd.backend.model.dto.DtoVersion;
 import ru.tdd.backend.model.dto.BaseDto;
 import ru.tdd.backend.model.entities.users.UserState;
@@ -10,7 +13,10 @@ import java.time.LocalDateTime;
 /** Dto пользователя */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto extends DtoVersion  {
+    @Min(value = 1, message = "Id не может быть отрицательным")
     private Long id;
+    @Email(message = "Должен имет формат адреса электронной почты")
+    @Size(min = 7, max = 55, message = "Электронный адрес пользователя, должен иметь длину от 7 до 50 символов")
     private String email;
     private String lastName;
     private String middleName;

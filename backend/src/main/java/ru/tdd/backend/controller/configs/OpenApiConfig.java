@@ -35,7 +35,10 @@ public class OpenApiConfig {
                                         .description("Контроллер для работы с пользователями"),
                                 new Tag()
                                         .name("Post Controller")
-                                        .description("Контроллер для работы с должностями")
+                                        .description("Контроллер для работы с должностями"),
+                                new Tag()
+                                        .name("Organisation Tag Controller")
+                                        .description("Контроллер для работы с тэгами организаций")
                         )
                 );
     }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tdd.backend.controller.repositories.organisations.PostPagingRepository;
 import ru.tdd.backend.controller.repositories.organisations.PostRepository;
+import ru.tdd.backend.domen.annotations.DtoNameNotEmpty;
 import ru.tdd.backend.domen.service.organisations.PostService;
 import ru.tdd.backend.model.dto.DictionaryDto;
 import ru.tdd.backend.model.entities.organisations.Post;
@@ -28,6 +29,7 @@ public class PostServiceImp implements PostService {
 
     @Override
     @Transactional
+    @DtoNameNotEmpty
     public DictionaryDto create(@Valid DictionaryDto dictionaryDto) {
         String name = dictionaryDto.getName();
         if (postRepository.existsByName(name)) {
@@ -71,7 +73,7 @@ public class PostServiceImp implements PostService {
         Post post = postRepository.findById(dictionaryDto.getId())
                 .orElseThrow(() -> new PostByIdNotFoundException(dictionaryDto.getId()));
         String name = dictionaryDto.getName();
-        if (name != null) {
+        if (name != null && !name.isEmpty()) {
             if (postRepository.existsByName(name)) {
                 throw new PostAlreadyExistsException(name);
             } else {
