@@ -15,14 +15,13 @@ import ru.tdd.backend.model.exceptions.BaseException;
 import ru.tdd.backend.model.exceptions.users.UserByEmailAlreadyExistsException;
 import ru.tdd.backend.model.exceptions.users.UserByEmailNotFoundException;
 import ru.tdd.backend.model.exceptions.users.WrongEmailPasswordException;
-import ru.tdd.backend.model.users.Role;
-import ru.tdd.backend.model.users.User;
+import ru.tdd.backend.model.entities.users.Role;
+import ru.tdd.backend.model.entities.users.User;
 import ru.tdd.backend.model.dto.users.JwtToken;
 import ru.tdd.backend.model.dto.users.SignIn;
 import ru.tdd.backend.model.dto.users.SignUp;
-import ru.tdd.backend.model.users.UserState;
+import ru.tdd.backend.model.entities.users.UserState;
 
-import java.lang.invoke.WrongMethodTypeException;
 import java.util.Objects;
 
 @Service

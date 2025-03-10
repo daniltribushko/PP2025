@@ -1,4 +1,4 @@
-package ru.tdd.backend.model;
+package ru.tdd.backend.model.dto;
 
 import java.time.LocalDateTime;
 

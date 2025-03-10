@@ -1,4 +1,4 @@
-package ru.tdd.backend.model.users;
+package ru.tdd.backend.model.entities.users;
 
 import jakarta.persistence.Entity;
 import ru.tdd.backend.model.BaseEntity;

@@ -7,7 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
-import ru.tdd.backend.model.users.User;
+import ru.tdd.backend.model.entities.users.User;
 
 import javax.crypto.SecretKey;
 import java.util.Date;

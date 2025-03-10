@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.tdd.backend.controller.repositories.RoleRepository;
 import ru.tdd.backend.domen.service.BaseEntityService;
 import ru.tdd.backend.model.exceptions.users.RoleByNameNotFoundException;
-import ru.tdd.backend.model.users.Role;
+import ru.tdd.backend.model.entities.users.Role;
 
 @Service
 public class RoleServiceImp implements BaseEntityService<Role> {

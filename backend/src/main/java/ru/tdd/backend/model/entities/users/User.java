@@ -1,4 +1,4 @@
-package ru.tdd.backend.model.users;
+package ru.tdd.backend.model.entities.users;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,7 +8,6 @@ import ru.tdd.backend.model.EntityVersion;
 import ru.tdd.backend.model.dto.DtoEntity;
 import ru.tdd.backend.model.dto.users.UserDto;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +16,7 @@ import java.util.Objects;
 /** Сущность пользователя */
 @Entity
 @Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User extends EntityVersion implements UserDetails, DtoEntity<UserDto> {
     @Column(unique = true, nullable = false)
     private String email;
