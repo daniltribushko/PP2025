@@ -2,26 +2,32 @@ package ru.tdd.backend.model.entities.organisations;
 
 import jakarta.persistence.*;
 import ru.tdd.backend.model.EntityVersion;
+import ru.tdd.backend.model.dto.DtoEntity;
+import ru.tdd.backend.model.dto.orgaisations.OrganisationDto;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /** Сущность организации */
 @Entity
-public class Organisation extends EntityVersion {
+public class Organisation extends EntityVersion implements DtoEntity<OrganisationDto> {
     @Column(nullable = false, unique = true)
     private String title;
 
-    @Column(nullable = false)
+    @Column(length = 2500)
     private String description;
 
     @Column(name = "url")
     private String url;
 
     @OneToMany(mappedBy = "organisation", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    private List<Employee> employees;
+    private Set<Employee> employees;
 
     @OneToMany(mappedBy = "manageOrganisation", cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
-    private List<Employee> manageEmployees;
+    private Set<Employee> manageEmployees;
 
     @ManyToMany
     @JoinTable(
@@ -29,23 +35,43 @@ public class Organisation extends EntityVersion {
             joinColumns = @JoinColumn(name = "organisation"),
             inverseJoinColumns = @JoinColumn(name = "tag")
     )
-    private List<OrganisationTag> tags;
+    private Set<OrganisationTag> tags;
 
     public Organisation() {
         super();
+        this.tags = new HashSet<>();
+        this.employees = new HashSet<>();
+        this.manageEmployees = new HashSet<>();
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    @Override
+    public OrganisationDto toDto() {
+        return OrganisationDto
+                .builder()
+                .id(id)
+                .title(title)
+                .description(description)
+                .url(url)
+                .tags(tags.stream()
+                        .map(OrganisationTag::toDto)
+                        .toList()
+                )
+                .creationDate(creationDate)
+                .updateDate(updateDate)
+                .build();
+    }
+
     public static class Builder {
         private String title;
         private String description;
         private String url;
-        private List<Employee> employees;
-        private List<Employee> manageEmployees;
-        private List<OrganisationTag> tags;
+        private Set<Employee> employees;
+        private Set<Employee> manageEmployees;
+        private Set<OrganisationTag> tags;
 
         public Builder title(String title) {
             this.title = title;
@@ -62,17 +88,17 @@ public class Organisation extends EntityVersion {
             return this;
         }
 
-        public Builder employees(List<Employee> employees) {
+        public Builder employees(Set<Employee> employees) {
             this.employees = employees;
             return this;
         }
 
-        public Builder manageEmployees(List<Employee> manageEmployees) {
+        public Builder manageEmployees(Set<Employee> manageEmployees) {
             this.manageEmployees = manageEmployees;
             return this;
         }
 
-        public Builder tags(List<OrganisationTag> tags) {
+        public Builder tags(Set<OrganisationTag> tags) {
             this.tags = tags;
             return this;
         }
@@ -115,27 +141,27 @@ public class Organisation extends EntityVersion {
         this.url = url;
     }
 
-    public List<Employee> getEmployees() {
+    public Set<Employee> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(List<Employee> employees) {
+    public void setEmployees(Set<Employee> employees) {
         this.employees = employees;
     }
 
-    public List<OrganisationTag> getTags() {
+    public Set<OrganisationTag> getTags() {
         return tags;
     }
 
-    public void setTags(List<OrganisationTag> tags) {
+    public void setTags(Set<OrganisationTag> tags) {
         this.tags = tags;
     }
 
-    public List<Employee> getManageEmployees() {
+    public Set<Employee> getManageEmployees() {
         return manageEmployees;
     }
 
-    public void setManageEmployees(List<Employee> manageEmployees) {
+    public void setManageEmployees(Set<Employee> manageEmployees) {
         this.manageEmployees = manageEmployees;
     }
 }
