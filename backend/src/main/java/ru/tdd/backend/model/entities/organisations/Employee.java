@@ -18,14 +18,14 @@ public class Employee extends User {
     private List<Contact> contacts;
 
     @ManyToOne
-    @JoinColumn(name = "organisation")
-    private Organisation organisation;
-
-    @ManyToOne
     @JoinColumn(name = "manage_organisation")
     private Organisation manageOrganisation;
 
-    public static class Builder {
+    public static EmployeeBuilder employeeBuilder() {
+        return new EmployeeBuilder();
+    }
+
+    public static class EmployeeBuilder {
         private String email;
         private String lastName;
         private String middleName;
@@ -35,60 +35,54 @@ public class Employee extends User {
         private UserState state;
         private Post post;
         private List<Contact> contacts;
-        private Organisation organisation;
         private Organisation manageOrganisation;
 
-        public Builder email(String email) {
+        public EmployeeBuilder email(String email) {
             this.email = email;
             return this;
         }
 
-        public Builder lastName(String lastName) {
+        public EmployeeBuilder lastName(String lastName) {
             this.lastName = lastName;
             return this;
         }
 
-        public Builder middleName(String middleName) {
+        public EmployeeBuilder middleName(String middleName) {
             this.middleName = middleName;
             return this;
         }
 
-        public Builder firstName(String firstName) {
+        public EmployeeBuilder firstName(String firstName) {
             this.firstName = firstName;
             return this;
         }
 
-        public Builder password(String password) {
+        public EmployeeBuilder password(String password) {
             this.password = password;
             return this;
         }
 
-        public Builder role(Role role) {
+        public EmployeeBuilder role(Role role) {
             this.role = role;
             return this;
         }
 
-        public Builder state(UserState state) {
+        public EmployeeBuilder state(UserState state) {
             this.state = state;
             return this;
         }
 
-        public Builder post(Post post) {
+        public EmployeeBuilder post(Post post) {
             this.post = post;
             return this;
         }
 
-        public Builder contacts(List<Contact> contacts) {
+        public EmployeeBuilder contacts(List<Contact> contacts) {
             this.contacts = contacts;
             return this;
         }
 
-        public Builder organisation(Organisation organisation) {
-            this.organisation = organisation;
-            return this;
-        }
-
-        public Builder manageOrganisation(Organisation manageOrganisation) {
+        public EmployeeBuilder manageOrganisation(Organisation manageOrganisation) {
             this.manageOrganisation = manageOrganisation;
             return this;
         }
@@ -105,7 +99,6 @@ public class Employee extends User {
             employee.setUserState(state);
             employee.post = post;
             employee.contacts = contacts;
-            employee.organisation = organisation;
             employee.manageOrganisation = manageOrganisation;
 
             return employee;
@@ -126,14 +119,6 @@ public class Employee extends User {
 
     public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
-    }
-
-    public Organisation getOrganisation() {
-        return organisation;
-    }
-
-    public void setOrganisation(Organisation organisation) {
-        this.organisation = organisation;
     }
 
     public Organisation getmanageOrganisation() {
