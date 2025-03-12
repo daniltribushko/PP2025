@@ -1,0 +1,25 @@
+body {
+    background-color: #b7ddbe;
+}
+
+#error-text p {
+    color: red;
+}
+.authorisation-form {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background: #ccc3c3;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(239, 134, 134, 0.1);
+}
+.authorisation-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.form-control {
+    margin-bottom: 15px;
+}
+.btn-primary {
+    width: 100%;
+}
