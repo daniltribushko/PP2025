@@ -248,9 +248,9 @@ public class OrganisationController {
     @SecuredAdminUser
     @PostMapping("/{id}/tags/{tagId}/remove")
     public ResponseEntity<OrganisationDto> deleteTag(
-        @PathVariable Long id,
-        @PathVariable Long tagId,
-        Principal principal
+            @PathVariable Long id,
+            @PathVariable Long tagId,
+            Principal principal
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(organisationService.deleteTag(id, tagId, principal.getName()));
     }
@@ -346,5 +346,75 @@ public class OrganisationController {
             @RequestParam(required = false, defaultValue = "1") Integer perPage
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(organisationService.findAll(tag, text, page, perPage));
+    }
+
+    @Operation(summary = "Add employee", description = "Создание работника")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Работник добавлен",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = OrganisationDto.class
+                                    ),
+                                    mediaType = "application/json"
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Пользователь не является администратором или менеджером организации",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ExceptionDTO.class
+                                    ),
+                                    mediaType = "application/json"
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Организация или пользователь не найдены",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ExceptionDTO.class
+                                    ),
+                                    mediaType = "application/json"
+                            )
+                    )
+            }
+    )
+    @PatchMapping("/{id}/employees/{usrId}/add")
+    @SecuredAdminUser
+    public ResponseEntity<OrganisationDto> addEmployee(
+            @PathVariable Long id,
+            @PathVariable Long usrId,
+            Principal principal
+    ) {
+        return ResponseEntity.ok(organisationService.addEmployee(id, usrId, principal.getName()));
+    }
+
+    @Operation(summary = "Delete employee", description = "Удаление работнка")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Работник удален",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = OrganisationDto.class
+                                    ),
+                                    mediaType = "application/json"
+                            )
+                    )
+            }
+    )
+    @PatchMapping("/{id}/employee/{usrId}/delete")
+    @SecuredAdminUser
+    public ResponseEntity<OrganisationDto> deleteEmployee(
+            @PathVariable Long id,
+            @PathVariable Long usrId,
+            Principal principal
+    ) {
+        return ResponseEntity.ok(organisationService.removeEmployee(id, usrId, principal.getName()));
     }
 }

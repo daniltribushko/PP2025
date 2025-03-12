@@ -12,4 +12,8 @@ public interface OrganisationService {
     OrganisationDto getById(Long id);
     OrganisationDto update(OrganisationDto dto, String email);
     void delete(Long id, String email);
+
+    OrganisationDto addEmployee(Long id, Long userId, String email);
+    OrganisationDto removeEmployee(Long id, Long userId, String email);
+
 }

@@ -3,23 +3,34 @@ package ru.tdd.backend.domen.service.organisations.imp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.tdd.backend.controller.repositories.organisations.EmployeeRepository;
 import ru.tdd.backend.controller.repositories.organisations.OrganisationPagingRepository;
 import ru.tdd.backend.controller.repositories.organisations.OrganisationRepository;
 import ru.tdd.backend.controller.repositories.organisations.OrganisationTagRepository;
+import ru.tdd.backend.controller.repositories.users.UserRepository;
 import ru.tdd.backend.domen.annotations.DtoNameNotEmpty;
 import ru.tdd.backend.domen.annotations.EmployeeDontChangeAnotherOrganisation;
 import ru.tdd.backend.domen.annotations.IsAdmin;
 import ru.tdd.backend.domen.service.organisations.OrganisationService;
 import ru.tdd.backend.model.dto.orgaisations.OrganisationDto;
+import ru.tdd.backend.model.entities.organisations.Employee;
 import ru.tdd.backend.model.entities.organisations.Organisation;
 import ru.tdd.backend.model.entities.organisations.OrganisationTag;
+import ru.tdd.backend.model.entities.users.User;
+import ru.tdd.backend.model.entities.users.UserState;
 import ru.tdd.backend.model.exceptions.ValidationException;
 import ru.tdd.backend.model.exceptions.organisations.OrganisationAlreadyExistException;
 import ru.tdd.backend.model.exceptions.organisations.OrganisationByIdNotFoundException;
 import ru.tdd.backend.model.exceptions.organisations.OrganisationTagAlreadyExistException;
 import ru.tdd.backend.model.exceptions.organisations.OrganisationTagByIdNotFoundException;
+import ru.tdd.backend.model.exceptions.users.EmployeeAlreadyEXistsException;
+import ru.tdd.backend.model.exceptions.users.UserByIdNotFoundException;
+import ru.tdd.backend.model.exceptions.users.UserByNameNotFoundException;
+import ru.tdd.backend.model.exceptions.users.UserNotOrganisationEmployeeException;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,16 +39,22 @@ public class OrganisationServiceImp implements OrganisationService {
     private final OrganisationRepository organisationRepository;
     private final OrganisationTagRepository organisationTagRepository;
     private final OrganisationPagingRepository organisationPagingRepository;
+    private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Autowired
     public OrganisationServiceImp(
             OrganisationRepository organisationRepository,
             OrganisationTagRepository organisationTagRepository,
-            OrganisationPagingRepository organisationPagingRepository
+            OrganisationPagingRepository organisationPagingRepository,
+            UserRepository userRepository,
+            EmployeeRepository employeeRepository
     ) {
         this.organisationRepository = organisationRepository;
         this.organisationTagRepository = organisationTagRepository;
         this.organisationPagingRepository = organisationPagingRepository;
+        this.userRepository = userRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @Override
@@ -169,5 +186,64 @@ public class OrganisationServiceImp implements OrganisationService {
                         .findById(id)
                         .orElseThrow(() -> new OrganisationByIdNotFoundException(id))
         );
+    }
+
+    @Override
+    public OrganisationDto addEmployee(Long id, Long userId, String email) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserByIdNotFoundException(userId));
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserByNameNotFoundException(email));
+        Organisation organisation = organisationRepository.findById(id)
+                .orElseThrow(() -> new OrganisationByIdNotFoundException(id));
+
+        if (
+                !currentUser.isAdmin() &&
+                        organisation.getManageEmployees()
+                                .stream()
+                                .allMatch(e -> Objects.equals(e.getId(), currentUser.getId()))
+        ) {
+            throw new UserNotOrganisationEmployeeException(currentUser.getEmail());
+        }
+
+        Optional<Employee> employeeOpt = employeeRepository.findById(user.getId());
+
+        if (employeeOpt.isEmpty()) {
+
+            employeeRepository.createEmployee(userId, organisation.getId());
+
+            return organisationRepository.save(organisation).toDto();
+        } else if (employeeOpt.get().getmanageOrganisation() == null) {
+
+            organisation.getManageEmployees().add(employeeOpt.get());
+
+            return organisationRepository.save(organisation).toDto();
+
+        } else {
+            throw new EmployeeAlreadyEXistsException(user.getEmail());
+        }
+    }
+
+    @Override
+    public OrganisationDto removeEmployee(Long id, Long userId, String email) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserByIdNotFoundException(userId));
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserByNameNotFoundException(email));
+        Organisation organisation = organisationRepository.findById(id)
+                .orElseThrow(() -> new OrganisationByIdNotFoundException(id));
+
+        if (
+                !currentUser.isAdmin() &&
+                        organisation.getManageEmployees()
+                                .stream()
+                                .allMatch(e -> Objects.equals(e.getId(), currentUser.getId()))
+        ) {
+            throw new UserNotOrganisationEmployeeException(currentUser.getEmail());
+        }
+
+        employeeRepository.findById(user.getId()).ifPresent(e -> organisation.getManageEmployees().remove(e));
+
+        return organisationRepository.save(organisation).toDto();
     }
 }

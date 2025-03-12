@@ -23,9 +23,6 @@ public class Organisation extends EntityVersion implements DtoEntity<Organisatio
     @Column(name = "url")
     private String url;
 
-    @OneToMany(mappedBy = "organisation", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    private Set<Employee> employees;
-
     @OneToMany(mappedBy = "manageOrganisation", cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
     private Set<Employee> manageEmployees;
 
@@ -40,7 +37,6 @@ public class Organisation extends EntityVersion implements DtoEntity<Organisatio
     public Organisation() {
         super();
         this.tags = new HashSet<>();
-        this.employees = new HashSet<>();
         this.manageEmployees = new HashSet<>();
     }
 
@@ -69,7 +65,6 @@ public class Organisation extends EntityVersion implements DtoEntity<Organisatio
         private String title;
         private String description;
         private String url;
-        private Set<Employee> employees;
         private Set<Employee> manageEmployees;
         private Set<OrganisationTag> tags;
 
@@ -85,11 +80,6 @@ public class Organisation extends EntityVersion implements DtoEntity<Organisatio
 
         public Builder url(String url) {
             this.url = url;
-            return this;
-        }
-
-        public Builder employees(Set<Employee> employees) {
-            this.employees = employees;
             return this;
         }
 
@@ -109,7 +99,6 @@ public class Organisation extends EntityVersion implements DtoEntity<Organisatio
             organisation.setTitle(title);
             organisation.setDescription(description);
             organisation.setUrl(url);
-            organisation.setEmployees(employees);
             organisation.setManageEmployees(manageEmployees);
             organisation.setTags(tags);
 
@@ -139,14 +128,6 @@ public class Organisation extends EntityVersion implements DtoEntity<Organisatio
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public Set<Employee> getEmployees() {
-        return employees;
-    }
-
-    public void setEmployees(Set<Employee> employees) {
-        this.employees = employees;
     }
 
     public Set<OrganisationTag> getTags() {
