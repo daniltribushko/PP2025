@@ -62,7 +62,7 @@ public class Vacancy extends EntityVersion implements DtoEntity<VacancyDto> {
                 .updateDate(creationDate)
                 .responses(responses.stream().map(VacancyResponse::toDto).toList())
                 .testTask(testTask)
-                .organisation(organisation.toDto())
+                .organisation(organisation.getId())
                 .skills(skills.stream().map(Skill::toDto).toList())
                 .build();
     }

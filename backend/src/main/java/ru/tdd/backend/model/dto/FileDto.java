@@ -1,6 +1,14 @@
 package ru.tdd.backend.model.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class FileDto {
+    @Schema(
+            name = "fileName",
+            description = "Имя файла",
+            format = "string",
+            example = "1.txt"
+    )
     private String fileName;
 
     public FileDto(String fileName) {

@@ -1,5 +1,7 @@
 package ru.tdd.backend.model.dto.vacancies;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import ru.tdd.backend.model.dto.DictionaryDto;
 import ru.tdd.backend.model.dto.DtoVersion;
 import ru.tdd.backend.model.dto.orgaisations.OrganisationDto;
@@ -9,11 +11,36 @@ import ru.tdd.backend.model.entities.vacancies.VacancyType;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VacancyDto extends DtoVersion {
+    @Schema(
+            name = "title",
+            description = "Заголовок вакансии",
+            type = "string",
+            example = "Java Developer"
+    )
     private String title;
+
+    @Schema(
+            name = "description",
+            description = "Описание вакании",
+            type = "string",
+            example = "Java spring developer"
+    )
     private String description;
+
+    @Schema(
+            name = "type",
+            description = "Тип вакансии",
+            example = "INTERNSHIP"
+    )
     private VacancyType type;
-    private OrganisationDto organisation;
+
+    @Schema(
+            name = "organisation",
+            description = "Имя организации"
+    )
+    private Long organisation;
     private List<DictionaryDto> skills;
     private List<VacancyResponseDto> responses;
     private DBFile testTask;
@@ -31,7 +58,7 @@ public class VacancyDto extends DtoVersion {
         private String title;
         private String description;
         private VacancyType type;
-        private OrganisationDto organisation;
+        private Long organisation;
         private List<DictionaryDto> skills;
         private List<VacancyResponseDto> responses;
         private DBFile testTask;
@@ -58,7 +85,7 @@ public class VacancyDto extends DtoVersion {
             return this;
         }
 
-        public Builder organisation(OrganisationDto organisation) {
+        public Builder organisation(Long organisation) {
             this.organisation = organisation;
             return this;
         }
@@ -128,11 +155,11 @@ public class VacancyDto extends DtoVersion {
         this.type = type;
     }
 
-    public OrganisationDto getOrganisation() {
+    public Long getOrganisation() {
         return organisation;
     }
 
-    public void setOrganisation(OrganisationDto organisation) {
+    public void setOrganisation(Long organisation) {
         this.organisation = organisation;
     }
 

@@ -28,7 +28,7 @@ public class DBFile extends DBEntity implements DtoEntity<FileDto> {
     }
 
     public File getFile() {
-        return new File("backend/src/main/resources/" + fileName);
+        return new File(fileName);
     }
 
     @Override
