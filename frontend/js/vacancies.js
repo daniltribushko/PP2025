@@ -15,17 +15,19 @@ async function displayVacancies(vacancies) {
         `;
 
         let hasResponse = false;
+        let responseId = null;
         if (vacancy.responses.length !== 0) {
             for (const response of vacancy.responses) {
                 if (response.author.id === JSON.parse(localStorage.getItem("CurrentUser")).id) {
                     hasResponse = true;
+                    responseId = response.id;
                     break;
                 }
             }
         }
 
         if (hasResponse) {
-            vacancyTxt += `<button class="btn btn-danger btn-apply" data-vacancy-id="${vacancy.id}">Удалить отклик</button>`;
+            vacancyTxt += `<button class="btn btn-danger btn-delete" data-vacancy-id="${vacancy.id}" data-response-id="${responseId}">Удалить отклик</button>`;
         } else {
             vacancyTxt += `<button class="btn btn-success btn-apply" data-vacancy-id="${vacancy.id}">Откликнуться</button>`;
         }
@@ -74,7 +76,43 @@ async function displayVacancies(vacancies) {
     const applyButtons = document.querySelectorAll(".btn-apply");
     applyButtons.forEach(button => {
         button.addEventListener("click", function () {
+            currentVacancyId = this.getAttribute("data-vacancy-id");
             applyModal.show();
+        });
+    });
+
+    const deleteButtons = document.querySelectorAll(".btn-danger");
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", async function () {
+            const vacancyId = this.getAttribute("data-vacancy-id");
+            const responseId = this.getAttribute("data-response-id");
+
+            try {
+                const response = await fetch(`http://localhost:8080/vacancies/${vacancyId}/responses/${responseId}/delete`, {
+                    method: "PATCH",
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem("Token")}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Ошибка при удалении отклика");
+                }
+
+                const filteredVacancies = await filterVacancies(
+                    titleFilter.value,
+                    typeFilter.value,
+                    orgName.value,
+                    pageFilter.value,
+                    perPageFilter.value
+                );
+                await displayVacancies(filteredVacancies);
+
+                alert("Отклик успешно удален!");
+            } catch (error) {
+                console.error("Ошибка:", error);
+                alert("Произошла ошибка при удалении отклика.");
+            }
         });
     });
 }
@@ -130,7 +168,6 @@ function filterVacancies(title, type, orgName, page, perPage) {
 function init() {
     const applyModalElement = document.getElementById("applyModal");
     const submitApplyButton = document.getElementById("submitApply");
-    let currentVacancyId = null;
 
     const titleFilter = document.querySelector('#titleFilter');
     const typeFilter = document.querySelector('#typeFilter');
@@ -149,13 +186,28 @@ function init() {
         }
 
         const formData = new FormData();
-        formData.append("vacancyId", currentVacancyId);
-        formData.append("message", messageText);
+        formData.append("answer", messageText);
         formData.append("file", fileUpload);
 
         try {
+            const vacancyId = this.getAttribute("data-vacancy-id");
             const applyModal = bootstrap.Modal.getInstance(applyModalElement);
             applyModal.hide();
+
+            const response = await fetch(`http://localhost:8080/vacancies/${vacancyId}/responses/`, {
+                method: "PATCH",
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("Token")}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error("Ошибка при отправке данных");
+            }
+
+            const data = await response.json();
+            console.log("Ответ сервера:", data);
 
             alert("Ваш отклик успешно отправлен!");
         } catch (error) {
