@@ -23,7 +23,23 @@ document.querySelector("#login-form")
                 req.onload = () => {
                     if (req.status === 200) {
                         const jwtToken = JSON.parse(req.responseText)
-                        sessionStorage.setItem("Authorisation", jwtToken.token)
+                        localStorage.setItem("Token", jwtToken.token)
+                        fetch("http://localhost:8080/auth?token=" + jwtToken.token, {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        })
+                            .then(response => {
+                                    if (response.status === 200) {
+                                        return response.json()
+                                    }
+                                }
+                            )
+                            .then(data => {
+                                console.log(JSON.stringify(data))
+                                localStorage.setItem("CurrentUser", JSON.stringify(data))
+                            })
                         window.location.href = "../html/vacancies.html"
                     } else {
                         if (req.status === 422) {

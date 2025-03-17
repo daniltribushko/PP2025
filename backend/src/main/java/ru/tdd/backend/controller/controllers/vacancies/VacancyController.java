@@ -237,7 +237,7 @@ public class VacancyController {
     )
     @SecuredAdminUser
     @PatchMapping(value = "/{id}/responses/add",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<VacancyDto> addResponse(
+    public ResponseEntity<VacancyResponseDto> addResponse(
             @PathVariable Long id,
             @RequestParam(value = "file", required = false) MultipartFile file,
             @ModelAttribute @Valid VacancyResponseDto dto,

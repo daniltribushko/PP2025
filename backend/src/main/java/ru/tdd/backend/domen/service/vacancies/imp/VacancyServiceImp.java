@@ -1,12 +1,14 @@
 package ru.tdd.backend.domen.service.vacancies.imp;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.tdd.backend.controller.repositories.organisations.OrganisationRepository;
 import ru.tdd.backend.controller.repositories.users.UserRepository;
-import ru.tdd.backend.controller.repositories.vacancies.*;
+import ru.tdd.backend.controller.repositories.vacancies.DBFileRepository;
+import ru.tdd.backend.controller.repositories.vacancies.SkillRepository;
+import ru.tdd.backend.controller.repositories.vacancies.VacancyRepository;
+import ru.tdd.backend.controller.repositories.vacancies.VacancyResponseRepository;
 import ru.tdd.backend.domen.service.vacancies.VacancyService;
 import ru.tdd.backend.model.dto.vacancies.VacancyDto;
 import ru.tdd.backend.model.dto.vacancies.VacancyResponseDto;
@@ -16,6 +18,7 @@ import ru.tdd.backend.model.entities.vacancies.Skill;
 import ru.tdd.backend.model.entities.vacancies.Vacancy;
 import ru.tdd.backend.model.entities.vacancies.VacancyResponse;
 import ru.tdd.backend.model.entities.vacancies.VacancyType;
+import ru.tdd.backend.model.exceptions.ValidationException;
 import ru.tdd.backend.model.exceptions.organisations.OrganisationByIdNotFoundException;
 import ru.tdd.backend.model.exceptions.users.UserByNameNotFoundException;
 import ru.tdd.backend.model.exceptions.vacancies.SkillByIdNotFoundException;
@@ -35,7 +38,6 @@ import java.util.Objects;
 @Service
 public class VacancyServiceImp implements VacancyService {
     private final VacancyRepository vacancyRepository;
-    private final VacancyPagingRepository vacancyPagingRepository;
     private final VacancyResponseRepository vacancyResponseRepository;
     private final OrganisationRepository organisationRepository;
     private final SkillRepository skillRepository;
@@ -45,14 +47,12 @@ public class VacancyServiceImp implements VacancyService {
     @Autowired
     public VacancyServiceImp(
             VacancyRepository vacancyRepository,
-            VacancyPagingRepository vacancyPagingRepository,
             VacancyResponseRepository vacancyResponseRepository,
             OrganisationRepository organisationRepository,
             SkillRepository skillRepository,
             DBFileRepository dbFileRepository,
             UserRepository userRepository) {
         this.vacancyRepository = vacancyRepository;
-        this.vacancyPagingRepository = vacancyPagingRepository;
         this.vacancyResponseRepository = vacancyResponseRepository;
         this.organisationRepository = organisationRepository;
         this.skillRepository = skillRepository;
@@ -80,7 +80,8 @@ public class VacancyServiceImp implements VacancyService {
 
         if (!file.isEmpty()) {
             try (InputStream io = file.getInputStream()) {
-                String fileName = "backend/src/main/resources/vacancies/" + vacancy.getTitle() + " " + file.getOriginalFilename();
+                String[] array = file.getOriginalFilename().split("\\.");
+                String fileName = "backend/src/main/resources/vacancies/" + vacancyRepository.getMaxId().orElse(1L) + "." + array[array.length - 1];
                 Files.copy(io, Path.of(fileName), StandardCopyOption.REPLACE_EXISTING);
                 vacancy.setTestTask(new DBFile(fileName));
             } catch (IOException e) {
@@ -128,7 +129,7 @@ public class VacancyServiceImp implements VacancyService {
     }
 
     @Override
-    public VacancyDto addResponse(Long id, String username, VacancyResponseDto vacancyResponseDto, MultipartFile file) {
+    public VacancyResponseDto addResponse(Long id, String username, VacancyResponseDto vacancyResponseDto, MultipartFile file) {
         Vacancy vacancy = vacancyRepository.findById(id)
                 .orElseThrow(() -> new VacancyByIdNotFoundException(id));
         User user = userRepository.findByEmail(username)
@@ -141,17 +142,20 @@ public class VacancyServiceImp implements VacancyService {
 
         if (!file.isEmpty()) {
             try (InputStream io = file.getInputStream()) {
-                String fileName = "backend/src/main/resources/vacancies/responses/" + vacancy.getTitle() + " " + file.getOriginalFilename();
+                String[] array = file.getOriginalFilename().split("\\.");
+                String fileName = "backend/src/main/resources/vacancies/responses/" + vacancy.getId() + "_" + user.getEmail() + "." + array[array.length - 1];
                 Files.copy(io, Path.of(fileName), StandardCopyOption.REPLACE_EXISTING);
                 response.setResume(new DBFile(fileName));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            throw new ValidationException("Резюме не должно быть пустым");
         }
 
         vacancy.getResponses().add(response);
 
-        return vacancyRepository.save(vacancy).toDto();
+        return vacancyResponseRepository.save(response).toDto();
     }
 
     @Override
@@ -160,6 +164,7 @@ public class VacancyServiceImp implements VacancyService {
                 .orElseThrow(() -> new VacancyByIdNotFoundException(id));
         VacancyResponse response = vacancyResponseRepository.findById(responseId)
                 .orElseThrow(() -> new VacancyResponseByIdNotFoundException(responseId));
+
         vacancy.getResponses().remove(response);
 
         vacancyRepository.save(vacancy);
@@ -177,8 +182,8 @@ public class VacancyServiceImp implements VacancyService {
             Integer page,
             Integer perPage
     ) {
-        return vacancyPagingRepository
-                .findAll(PageRequest.of(page, perPage))
+        return vacancyRepository
+                .findAll()
                 .stream()
                 .filter(v ->
                         (title == null || v.getTitle().contains(title)) &&
@@ -186,6 +191,8 @@ public class VacancyServiceImp implements VacancyService {
                                 (type == null || Objects.equals(v.getType(), type)) &&
                                 (orgName == null || v.getOrganisation().getTitle().contains(orgName))
                 )
+                .skip((long) page * perPage)
+                .limit(perPage)
                 .map(Vacancy::toDto)
                 .toList();
     }

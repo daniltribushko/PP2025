@@ -32,7 +32,7 @@ document.querySelector("#registration-form")
                     if (req.status === 200) {
                         const jwtToken = JSON.parse(req.responseText)
                         console.log(req.responseText)
-                        sessionStorage.setItem("Authorisation", jwtToken.token)
+                        localStorage.setItem("Token", jwtToken.token)
                         window.location.href = "../html/vacancies.html"
                     } else {
                         if (req.status === 422) {

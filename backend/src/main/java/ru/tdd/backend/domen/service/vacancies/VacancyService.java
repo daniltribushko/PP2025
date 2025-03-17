@@ -13,7 +13,7 @@ public interface VacancyService {
     VacancyDto getById(Long id);
     void delete(Long id, String email);
     List<VacancyResponseDto> getResponses(Long id);
-    VacancyDto addResponse(
+    VacancyResponseDto addResponse(
             Long id,
             String username,
             VacancyResponseDto vacancyResponseDto,

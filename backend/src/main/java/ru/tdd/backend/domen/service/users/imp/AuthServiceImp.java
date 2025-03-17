@@ -11,9 +11,11 @@ import ru.tdd.backend.controller.repositories.users.UserRepository;
 import ru.tdd.backend.domen.service.BaseEntityService;
 import ru.tdd.backend.domen.service.jwt.JwtTokenService;
 import ru.tdd.backend.domen.service.users.AuthService;
+import ru.tdd.backend.model.dto.users.UserDto;
 import ru.tdd.backend.model.exceptions.BaseException;
 import ru.tdd.backend.model.exceptions.users.UserByEmailAlreadyExistsException;
 import ru.tdd.backend.model.exceptions.users.UserByEmailNotFoundException;
+import ru.tdd.backend.model.exceptions.users.UserByNameNotFoundException;
 import ru.tdd.backend.model.exceptions.users.WrongEmailPasswordException;
 import ru.tdd.backend.model.entities.users.Role;
 import ru.tdd.backend.model.entities.users.User;
@@ -95,5 +97,11 @@ public class AuthServiceImp implements AuthService {
                 .orElseThrow(() -> new UserByEmailNotFoundException(email));
 
         return new JwtToken(jwtTokenService.createToken(user));
+    }
+
+    @Override
+    public UserDto getFromToken(String token) {
+        String email = jwtTokenService.parseToken(token).getSubject();
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserByNameNotFoundException(email)).toDto();
     }
 }
