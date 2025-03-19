@@ -16,6 +16,7 @@ import ru.tdd.backend.model.dto.exceptions.ExceptionDTO;
 import ru.tdd.backend.model.dto.users.JwtToken;
 import ru.tdd.backend.model.dto.users.SignIn;
 import ru.tdd.backend.model.dto.users.SignUp;
+import ru.tdd.backend.model.dto.users.UserDto;
 
 @CrossOrigin
 @RestController
@@ -111,5 +112,31 @@ public class AuthController {
     @PostMapping("/sign-in")
     public ResponseEntity<JwtToken> signIn(@Valid @RequestBody SignIn signIn) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.signIn(signIn));
+    }
+
+    @Operation(summary = "Get from token", description = "Получить пользователя из токена")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Пользователь получен",
+                            content = @Content(
+                                    schema = @Schema(implementation = UserDto.class),
+                                    mediaType = "application/json"
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Пользователь с указанным идентификатором не найден",
+                            content = @Content(
+                                    schema = @Schema(implementation = ExceptionDTO.class),
+                                    mediaType = "application/json"
+                            )
+                    )
+            }
+    )
+    @GetMapping
+    public ResponseEntity<UserDto> getFromToken(@RequestParam String token) {
+        return ResponseEntity.ok(authService.getFromToken(token));
     }
 }

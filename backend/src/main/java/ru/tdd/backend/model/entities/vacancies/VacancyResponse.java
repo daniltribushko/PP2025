@@ -10,7 +10,7 @@ import ru.tdd.backend.model.entities.users.User;
 @Entity
 public class VacancyResponse extends DBEntity implements DtoEntity<VacancyResponseDto> {
     @JoinColumn(name = "author")
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(cascade = CascadeType.DETACH)
     private User author;
 
     @JoinColumn(name = "resume")
