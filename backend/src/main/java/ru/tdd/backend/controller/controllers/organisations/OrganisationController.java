@@ -15,6 +15,7 @@ import ru.tdd.backend.domen.annotations.SecuredAdmin;
 import ru.tdd.backend.domen.annotations.SecuredAdminUser;
 import ru.tdd.backend.domen.service.organisations.OrganisationService;
 import ru.tdd.backend.model.dto.exceptions.ExceptionDTO;
+import ru.tdd.backend.model.dto.orgaisations.EmployeeDto;
 import ru.tdd.backend.model.dto.orgaisations.OrganisationDto;
 
 import java.security.Principal;
@@ -80,6 +81,13 @@ public class OrganisationController {
     @PostMapping
     public ResponseEntity<OrganisationDto> create(@RequestBody OrganisationDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(organisationService.create(dto));
+    }
+
+    @Operation(summary = "Get user by id")
+    @SecuredAdminUser
+    @GetMapping("/{orgId}/employee/{id}")
+    public ResponseEntity<EmployeeDto> getById(@PathVariable Long orgId, @PathVariable Long id) {
+        return ResponseEntity.ok(organisationService.getEmployee(orgId, id));
     }
 
     @Operation(summary = "Update", description = "Обновление организации")

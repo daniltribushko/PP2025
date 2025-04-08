@@ -1,9 +1,31 @@
+let currentVacancyId = null;
+
+async function isUserWorker(orgId) {
+    const currentUser = JSON.parse(localStorage.getItem("CurrentUser"));
+    if (!currentUser) return false;
+
+    try {
+        const response = await fetch(`http://localhost:8080/organisations/${orgId}/employee/${currentUser.id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("Token")}`
+            }
+        });
+        localStorage.setItem("CurrentEmployee", JSON.stringify(await response.json()));
+        return response.ok;
+    } catch (error) {
+        console.error('Ошибка при проверке роли:', error);
+        return false;
+    }
+}
+
 async function displayVacancies(vacancies) {
     const applyModal = new bootstrap.Modal(document.getElementById("applyModal"));
     const vacanciesContainer = document.getElementById('vacancies');
     vacanciesContainer.innerHTML = '';
 
     for (const vacancy of vacancies) {
+        const isWorker = await isUserWorker(vacancy.organisation);
         const card = document.createElement('div');
         card.className = 'vacancy-card';
         const org = await getOrganisation(vacancy.organisation);
@@ -14,11 +36,17 @@ async function displayVacancies(vacancies) {
             <p>Организация: ${org.title}</p>
         `;
 
+        if (isWorker) {
+            vacancyTxt += `<a href="organisation.html?id=${org.id}" class="btn btn-info me-2">Перейти к организации</a>`;
+        }
+
+        const currentUser = JSON.parse(localStorage.getItem("CurrentUser"));
         let hasResponse = false;
         let responseId = null;
-        if (vacancy.responses.length !== 0) {
+
+        if (currentUser && vacancy.responses.length !== 0) {
             for (const response of vacancy.responses) {
-                if (response.author.id === JSON.parse(localStorage.getItem("CurrentUser")).id) {
+                if (response.author.id === currentUser.id) {
                     hasResponse = true;
                     responseId = response.id;
                     break;
@@ -28,7 +56,7 @@ async function displayVacancies(vacancies) {
 
         if (hasResponse) {
             vacancyTxt += `<button class="btn btn-danger btn-delete" data-vacancy-id="${vacancy.id}" data-response-id="${responseId}">Удалить отклик</button>`;
-        } else {
+        } else if (currentUser) {
             vacancyTxt += `<button class="btn btn-success btn-apply" data-vacancy-id="${vacancy.id}">Откликнуться</button>`;
         }
 
@@ -185,16 +213,20 @@ function init() {
             return;
         }
 
+        if (!currentVacancyId) {
+            alert("Не выбрана вакансия для отклика.");
+            return;
+        }
+
         const formData = new FormData();
         formData.append("answer", messageText);
         formData.append("file", fileUpload);
 
         try {
-            const vacancyId = this.getAttribute("data-vacancy-id");
             const applyModal = bootstrap.Modal.getInstance(applyModalElement);
             applyModal.hide();
 
-            const response = await fetch(`http://localhost:8080/vacancies/${vacancyId}/responses/`, {
+            const response = await fetch(`http://localhost:8080/vacancies/${currentVacancyId}/responses/add`, {
                 method: "PATCH",
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem("Token")}`
@@ -210,6 +242,15 @@ function init() {
             console.log("Ответ сервера:", data);
 
             alert("Ваш отклик успешно отправлен!");
+
+            const filteredVacancies = await filterVacancies(
+                titleFilter.value,
+                typeFilter.value,
+                orgName.value,
+                pageFilter.value,
+                perPageFilter.value
+            );
+            await displayVacancies(filteredVacancies);
         } catch (error) {
             console.error("Ошибка:", error);
             alert("Произошла ошибка при отправке отклика.");
@@ -219,7 +260,6 @@ function init() {
     applyModalElement.addEventListener("hidden.bs.modal", function () {
         document.body.classList.remove("modal-open");
         document.body.style.paddingRight = "";
-
         document.getElementById("applyForm").reset();
     });
 

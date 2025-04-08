@@ -1,5 +1,6 @@
 package ru.tdd.backend.domen.service.organisations;
 
+import ru.tdd.backend.model.dto.orgaisations.EmployeeDto;
 import ru.tdd.backend.model.dto.orgaisations.OrganisationDto;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public interface OrganisationService {
     OrganisationDto addEmployee(Long id, Long userId, String email);
     OrganisationDto removeEmployee(Long id, Long userId, String email);
 
+    EmployeeDto getEmployee(Long orgId, Long id);
 }
