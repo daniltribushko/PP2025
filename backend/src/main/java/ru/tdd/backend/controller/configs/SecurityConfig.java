@@ -38,7 +38,7 @@ public class SecurityConfig {
                         req.requestMatchers("/auth/**", "/swagger-ui/**", "/v3/**", "/files/**")
                                 .permitAll()
                                 .anyRequest()
-                                .authenticated()
+                                .permitAll()
                 )
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider())

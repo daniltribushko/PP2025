@@ -1,6 +1,7 @@
 package ru.tdd.backend.model.entities.organisations;
 
 import jakarta.persistence.*;
+import ru.tdd.backend.model.dto.users.UserDto;
 import ru.tdd.backend.model.entities.users.Role;
 import ru.tdd.backend.model.entities.users.User;
 import ru.tdd.backend.model.entities.users.UserState;

@@ -33,6 +33,6 @@ public class DBFile extends DBEntity implements DtoEntity<FileDto> {
 
     @Override
     public FileDto toDto() {
-        return null;
+        return new FileDto(fileName);
     }
 }

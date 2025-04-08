@@ -1,0 +1,30 @@
+.org-header {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 0.5rem;
+}
+
+.vacancy-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.response-card {
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.response-file-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
+.skills-badge {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}

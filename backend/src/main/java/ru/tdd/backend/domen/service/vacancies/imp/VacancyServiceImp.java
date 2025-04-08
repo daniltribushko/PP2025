@@ -114,7 +114,7 @@ public class VacancyServiceImp implements VacancyService {
             file.delete();
         }
         dbFileRepository.delete(testTask);
-
+        vacancy.setOrganisation(null);
         vacancyRepository.delete(vacancy);
     }
 

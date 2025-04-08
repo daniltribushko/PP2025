@@ -12,6 +12,7 @@ import ru.tdd.backend.domen.annotations.DtoNameNotEmpty;
 import ru.tdd.backend.domen.annotations.EmployeeDontChangeAnotherOrganisation;
 import ru.tdd.backend.domen.annotations.IsAdmin;
 import ru.tdd.backend.domen.service.organisations.OrganisationService;
+import ru.tdd.backend.model.dto.orgaisations.EmployeeDto;
 import ru.tdd.backend.model.dto.orgaisations.OrganisationDto;
 import ru.tdd.backend.model.entities.organisations.Employee;
 import ru.tdd.backend.model.entities.organisations.Organisation;
@@ -23,10 +24,7 @@ import ru.tdd.backend.model.exceptions.organisations.OrganisationAlreadyExistExc
 import ru.tdd.backend.model.exceptions.organisations.OrganisationByIdNotFoundException;
 import ru.tdd.backend.model.exceptions.organisations.OrganisationTagAlreadyExistException;
 import ru.tdd.backend.model.exceptions.organisations.OrganisationTagByIdNotFoundException;
-import ru.tdd.backend.model.exceptions.users.EmployeeAlreadyEXistsException;
-import ru.tdd.backend.model.exceptions.users.UserByIdNotFoundException;
-import ru.tdd.backend.model.exceptions.users.UserByNameNotFoundException;
-import ru.tdd.backend.model.exceptions.users.UserNotOrganisationEmployeeException;
+import ru.tdd.backend.model.exceptions.users.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -245,5 +243,27 @@ public class OrganisationServiceImp implements OrganisationService {
         employeeRepository.findById(user.getId()).ifPresent(e -> organisation.getManageEmployees().remove(e));
 
         return organisationRepository.save(organisation).toDto();
+    }
+
+    @Override
+    public EmployeeDto getEmployee(Long orgId, Long id) {
+        var organisation = organisationRepository.findById(orgId)
+                .orElseThrow(() -> new OrganisationByIdNotFoundException(orgId));
+        var employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeByIdNotFoundException(id));
+        if (!organisation.getManageEmployees().contains(employee)) {
+            throw new EmployeeByIdNotFoundException(id);
+        }
+        return EmployeeDto.builder()
+                .id(employee.getId())
+                .email(employee.getEmail())
+                .creationDate(employee.getCreationDate())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .middleName(employee.getMiddleName())
+                .role(employee.getRole().toDto())
+                .organisation(employee.getmanageOrganisation().toDto())
+                .userState(employee.getUserState())
+                .build();
     }
 }

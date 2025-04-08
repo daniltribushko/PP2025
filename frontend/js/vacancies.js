@@ -1,9 +1,31 @@
+let currentVacancyId = null;
+
+async function isUserWorker(orgId) {
+    const currentUser = JSON.parse(localStorage.getItem("CurrentUser"));
+    if (!currentUser) return false;
+
+    try {
+        const response = await fetch(`http://localhost:8080/organisations/${orgId}/employee/${currentUser.id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("Token")}`
+            }
+        });
+        localStorage.setItem("CurrentEmployee", JSON.stringify(await response.json()));
+        return response.ok;
+    } catch (error) {
+        console.error('Ошибка при проверке роли:', error);
+        return false;
+    }
+}
+
 async function displayVacancies(vacancies) {
     const applyModal = new bootstrap.Modal(document.getElementById("applyModal"));
     const vacanciesContainer = document.getElementById('vacancies');
     vacanciesContainer.innerHTML = '';
 
     for (const vacancy of vacancies) {
+        const isWorker = await isUserWorker(vacancy.organisation);
         const card = document.createElement('div');
         card.className = 'vacancy-card';
         const org = await getOrganisation(vacancy.organisation);
@@ -12,13 +34,20 @@ async function displayVacancies(vacancies) {
             <p>${vacancy.description}</p>
             <p>Тип: ${vacancy.type}</p>
             <p>Организация: ${org.title}</p>
+            <div class="btn-group-vacancy">
         `;
 
+        if (isWorker) {
+            vacancyTxt += `<a href="organisation.html?id=${org.id}" class="btn btn-info">Перейти к организации</a>`;
+        }
+
+        const currentUser = JSON.parse(localStorage.getItem("CurrentUser"));
         let hasResponse = false;
         let responseId = null;
-        if (vacancy.responses.length !== 0) {
+
+        if (currentUser && vacancy.responses.length !== 0) {
             for (const response of vacancy.responses) {
-                if (response.author.id === JSON.parse(localStorage.getItem("CurrentUser")).id) {
+                if (response.author.id === currentUser.id) {
                     hasResponse = true;
                     responseId = response.id;
                     break;
@@ -28,12 +57,12 @@ async function displayVacancies(vacancies) {
 
         if (hasResponse) {
             vacancyTxt += `<button class="btn btn-danger btn-delete" data-vacancy-id="${vacancy.id}" data-response-id="${responseId}">Удалить отклик</button>`;
-        } else {
+        } else if (currentUser) {
             vacancyTxt += `<button class="btn btn-success btn-apply" data-vacancy-id="${vacancy.id}">Откликнуться</button>`;
         }
 
         if (vacancy.skills && Object.keys(vacancy.skills).length > 0) {
-            vacancyTxt += `<p>Навыки: ${Object.values(vacancy.skills).join(', ')}</p>`;
+            vacancyTxt += `<div class="mt-2"><strong>Навыки:</strong> ${Object.values(vacancy.skills).join(', ')}</div>`;
         }
 
         if (vacancy.testTask) {
@@ -50,32 +79,34 @@ async function displayVacancies(vacancies) {
 
             if (fileExist) {
                 vacancyTxt += `
-                    <button class="btn btn-secondary mt-2">
-                        <a href="http://localhost:8080/files/download?filename=${vacancy.testTask.fileName}">Получить тестовое задание</a>
-                    </button>
+                    <a href="http://localhost:8080/files/download?filename=${vacancy.testTask.fileName}" 
+                       class="test-task-btn">
+                        Получить тестовое задание
+                    </a>
                 `;
             } else {
                 vacancyTxt += `
-                    <button class="btn btn-secondary mt-2" disabled>
+                    <button class="test-task-btn" disabled>
                         Тестовое задание недоступно
                     </button>
                 `;
             }
         } else {
             vacancyTxt += `
-                <button class="btn btn-secondary mt-2" disabled>
+                <button class="test-task-btn" disabled>
                     Тестовое задание недоступно
                 </button>
             `;
         }
 
+        vacancyTxt += `</div>`;
         card.innerHTML = vacancyTxt;
         vacanciesContainer.appendChild(card);
     }
 
     const applyButtons = document.querySelectorAll(".btn-apply");
     applyButtons.forEach(button => {
-        button.addEventListener("click", function () {
+        button.addEventListener("click", function() {
             currentVacancyId = this.getAttribute("data-vacancy-id");
             applyModal.show();
         });
@@ -83,7 +114,7 @@ async function displayVacancies(vacancies) {
 
     const deleteButtons = document.querySelectorAll(".btn-danger");
     deleteButtons.forEach(button => {
-        button.addEventListener("click", async function () {
+        button.addEventListener("click", async function() {
             const vacancyId = this.getAttribute("data-vacancy-id");
             const responseId = this.getAttribute("data-response-id");
 
@@ -95,9 +126,7 @@ async function displayVacancies(vacancies) {
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error("Ошибка при удалении отклика");
-                }
+                if (!response.ok) throw new Error("Ошибка при удалении отклика");
 
                 const filteredVacancies = await filterVacancies(
                     titleFilter.value,
@@ -107,7 +136,6 @@ async function displayVacancies(vacancies) {
                     perPageFilter.value
                 );
                 await displayVacancies(filteredVacancies);
-
                 alert("Отклик успешно удален!");
             } catch (error) {
                 console.error("Ошибка:", error);
@@ -119,18 +147,13 @@ async function displayVacancies(vacancies) {
 
 function getOrganisation(id) {
     return fetch(`http://localhost:8080/organisations/${id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem("Token")}`
-            }
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("Token")}`
         }
-    ).then(response => {
-            return response.json()
-        }
-    ).then(data => {
-        return data
-    })
+    }).then(response => response.json())
+        .then(data => data)
         .catch(error => {
             console.error('Ошибка при получении организации:', error);
             return null;
@@ -152,23 +175,18 @@ function filterVacancies(title, type, orgName, page, perPage) {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem("Token")}`
         }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            return [];
-        });
+    }).then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    }).catch(error => {
+        console.error('Ошибка:', error);
+        return [];
+    });
 }
 
 function init() {
     const applyModalElement = document.getElementById("applyModal");
     const submitApplyButton = document.getElementById("submitApply");
-
     const titleFilter = document.querySelector('#titleFilter');
     const typeFilter = document.querySelector('#typeFilter');
     const orgName = document.querySelector('#orgName');
@@ -176,7 +194,25 @@ function init() {
     const perPageFilter = document.querySelector('#perPageFilter');
     const submitBtn = document.querySelector('#filter-btn');
 
-    submitApplyButton.addEventListener("click", async function () {
+    const loadInitialVacancies = async () => {
+        try {
+            const vacancies = await filterVacancies(
+                titleFilter.value,
+                typeFilter.value,
+                orgName.value,
+                pageFilter.value,
+                perPageFilter.value
+            );
+            await displayVacancies(vacancies);
+        } catch (error) {
+            console.error("Ошибка при загрузке вакансий:", error);
+            alert("Произошла ошибка при загрузке вакансий.");
+        }
+    };
+
+    loadInitialVacancies();
+
+    submitApplyButton.addEventListener("click", async function() {
         const messageText = document.getElementById("messageText").value;
         const fileUpload = document.getElementById("fileUpload").files[0];
 
@@ -185,16 +221,20 @@ function init() {
             return;
         }
 
+        if (!currentVacancyId) {
+            alert("Не выбрана вакансия для отклика.");
+            return;
+        }
+
         const formData = new FormData();
         formData.append("answer", messageText);
         formData.append("file", fileUpload);
 
         try {
-            const vacancyId = this.getAttribute("data-vacancy-id");
             const applyModal = bootstrap.Modal.getInstance(applyModalElement);
             applyModal.hide();
 
-            const response = await fetch(`http://localhost:8080/vacancies/${vacancyId}/responses/`, {
+            const response = await fetch(`http://localhost:8080/vacancies/${currentVacancyId}/responses/add`, {
                 method: "PATCH",
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem("Token")}`
@@ -202,24 +242,29 @@ function init() {
                 body: formData
             });
 
-            if (!response.ok) {
-                throw new Error("Ошибка при отправке данных");
-            }
+            if (!response.ok) throw new Error("Ошибка при отправке данных");
 
             const data = await response.json();
             console.log("Ответ сервера:", data);
-
             alert("Ваш отклик успешно отправлен!");
+
+            const filteredVacancies = await filterVacancies(
+                titleFilter.value,
+                typeFilter.value,
+                orgName.value,
+                pageFilter.value,
+                perPageFilter.value
+            );
+            await displayVacancies(filteredVacancies);
         } catch (error) {
             console.error("Ошибка:", error);
             alert("Произошла ошибка при отправке отклика.");
         }
     });
 
-    applyModalElement.addEventListener("hidden.bs.modal", function () {
+    applyModalElement.addEventListener("hidden.bs.modal", function() {
         document.body.classList.remove("modal-open");
         document.body.style.paddingRight = "";
-
         document.getElementById("applyForm").reset();
     });
 
@@ -240,4 +285,10 @@ function init() {
     });
 }
 
-init();
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        console.error("Bootstrap не загружен");
+        return;
+    }
+    init().catch(error => console.error("Ошибка инициализации:", error));
+});
