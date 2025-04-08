@@ -23,7 +23,7 @@ public class Vacancy extends EntityVersion implements DtoEntity<VacancyDto> {
     @Enumerated(EnumType.STRING)
     private VacancyType type;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(cascade = {CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.MERGE})
     @JoinColumn(name = "organisation")
     private Organisation organisation;
 
