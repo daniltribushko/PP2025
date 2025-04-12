@@ -52,10 +52,6 @@ public class Organisation extends EntityVersion implements DtoEntity<Organisatio
                 .title(title)
                 .description(description)
                 .url(url)
-                .tags(tags.stream()
-                        .map(OrganisationTag::toDto)
-                        .toList()
-                )
                 .creationDate(creationDate)
                 .updateDate(updateDate)
                 .build();

@@ -18,11 +18,6 @@ document.querySelector("#registration-form").addEventListener("submit", event =>
         return;
     }
 
-    if (password.length < 6) {
-        document.querySelector("#error-text").textContent = "Пароль должен содержать минимум 6 символов";
-        return;
-    }
-
     const signUpRequest = {
         "email": email,
         "password": password,
