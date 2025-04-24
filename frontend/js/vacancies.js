@@ -29,34 +29,56 @@ async function displayVacancies(vacancies) {
         const card = document.createElement('div');
         card.className = 'vacancy-card';
         const org = await getOrganisation(vacancy.organisation);
+
         let vacancyTxt = `
             <h3>${vacancy.title}</h3>
             <p>${vacancy.description}</p>
-            <p>Тип: ${vacancy.type}</p>
-            <p>Организация: ${org.title}</p>
-            <div class="btn-group-vacancy">
+            <p class="vacancy-meta">
+                <span class="vacancy-type">Тип: ${vacancy.type}</span>
+                <span class="vacancy-org">Организация: ${org.title}</span>
+            </p>
         `;
-
-        if (isWorker) {
-            vacancyTxt += `<a href="organisation.html?id=${org.id}" class="btn btn-info">Перейти к организации</a>`;
-        }
 
         const currentUser = JSON.parse(localStorage.getItem("CurrentUser"));
         let hasResponse = false;
         let responseId = null;
+        let responseStatus = null;
 
         if (currentUser && vacancy.responses.length !== 0) {
             for (const response of vacancy.responses) {
                 if (response.author.id === currentUser.id) {
                     hasResponse = true;
                     responseId = response.id;
+                    responseStatus = response.responseState;
                     break;
                 }
             }
         }
 
         if (hasResponse) {
-            vacancyTxt += `<button class="btn btn-danger btn-delete" data-vacancy-id="${vacancy.id}" data-response-id="${responseId}">Удалить отклик</button>`;
+            const statusText = getStatusText(responseStatus);
+            const statusClass = getStatusClass(responseStatus);
+            vacancyTxt += `
+                <div class="response-status">
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+            `;
+        }
+
+        vacancyTxt += `<div class="btn-group-vacancy">`;
+
+        if (isWorker) {
+            vacancyTxt += `<a href="organisation.html?id=${org.id}" class="btn btn-info">Перейти к организации</a>`;
+        }
+
+        if (hasResponse) {
+            vacancyTxt += `
+                <button class="btn btn-danger btn-delete" 
+                        data-vacancy-id="${vacancy.id}" 
+                        data-response-id="${responseId}">
+                    Удалить отклик
+                </button>
+            `;
         } else if (currentUser) {
             vacancyTxt += `<button class="btn btn-success btn-apply" data-vacancy-id="${vacancy.id}">Откликнуться</button>`;
         }
@@ -143,6 +165,26 @@ async function displayVacancies(vacancies) {
             }
         });
     });
+}
+
+function getStatusText(status) {
+    switch(status) {
+        case 'APPROVED': return 'Статус: Одобрен';
+        case 'REJECTED': return 'Статус: Отклонен';
+        case 'WAITING':
+        default:
+            return 'Статус: На рассмотрении';
+    }
+}
+
+function getStatusClass(status) {
+    switch(status) {
+        case 'APPROVED': return 'status-approved';
+        case 'REJECTED': return 'status-rejected';
+        case 'WAITING':
+        default:
+            return 'status-waiting';
+    }
 }
 
 function getOrganisation(id) {

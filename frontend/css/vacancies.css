@@ -96,3 +96,41 @@
         flex-direction: column;
     }
 }
+
+.response-status {
+    margin: 10px 0;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.status-approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-waiting {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.vacancy-meta {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.vacancy-type, .vacancy-org {
+    font-size: 15px;
+    color: #555;
+}

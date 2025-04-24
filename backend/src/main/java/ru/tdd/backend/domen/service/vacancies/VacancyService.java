@@ -37,4 +37,7 @@ public interface VacancyService {
 
     VacancyDto addSkill(Long id, Long skillId, String email);
     VacancyDto deleteSkill(Long id, Long skillId, String email);
+
+    VacancyResponseDto approve(Long id, String email);
+    VacancyResponseDto reject(Long id, String email);
 }

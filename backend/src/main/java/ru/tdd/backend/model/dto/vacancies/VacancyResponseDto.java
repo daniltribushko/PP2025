@@ -3,6 +3,7 @@ package ru.tdd.backend.model.dto.vacancies;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.tdd.backend.model.dto.FileDto;
 import ru.tdd.backend.model.dto.users.UserDto;
+import ru.tdd.backend.model.entities.vacancies.ResponseState;
 
 public class VacancyResponseDto {
     @Schema(
@@ -22,12 +23,14 @@ public class VacancyResponseDto {
             example = "sjhsdhgsdhgsdjmhgsdmhgsf"
     )
     private String answer;
+    private ResponseState state;
 
-    public VacancyResponseDto(Long id, UserDto author, FileDto resume, String answer) {
+    public VacancyResponseDto(Long id, UserDto author, FileDto resume, String answer, ResponseState state) {
         this.id = id;
         this.author = author;
         this.resume = resume;
         this.answer = answer;
+        this.state = state;
     }
 
     public Long getId() {
@@ -60,5 +63,13 @@ public class VacancyResponseDto {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public ResponseState getState() {
+        return state;
+    }
+
+    public void setState(ResponseState state) {
+        this.state = state;
     }
 }

@@ -1,6 +1,7 @@
 package ru.tdd.backend.domen.service.vacancies.imp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.tdd.backend.controller.repositories.organisations.OrganisationRepository;
@@ -13,13 +14,13 @@ import ru.tdd.backend.domen.service.vacancies.VacancyService;
 import ru.tdd.backend.model.dto.vacancies.VacancyDto;
 import ru.tdd.backend.model.dto.vacancies.VacancyResponseDto;
 import ru.tdd.backend.model.entities.DBFile;
+import ru.tdd.backend.model.entities.organisations.Organisation;
 import ru.tdd.backend.model.entities.users.User;
-import ru.tdd.backend.model.entities.vacancies.Skill;
-import ru.tdd.backend.model.entities.vacancies.Vacancy;
-import ru.tdd.backend.model.entities.vacancies.VacancyResponse;
-import ru.tdd.backend.model.entities.vacancies.VacancyType;
+import ru.tdd.backend.model.entities.vacancies.*;
+import ru.tdd.backend.model.exceptions.BaseException;
 import ru.tdd.backend.model.exceptions.ValidationException;
 import ru.tdd.backend.model.exceptions.organisations.OrganisationByIdNotFoundException;
+import ru.tdd.backend.model.exceptions.users.UserByEmailNotFoundException;
 import ru.tdd.backend.model.exceptions.users.UserByNameNotFoundException;
 import ru.tdd.backend.model.exceptions.vacancies.SkillByIdNotFoundException;
 import ru.tdd.backend.model.exceptions.vacancies.VacancyByIdNotFoundException;
@@ -139,6 +140,7 @@ public class VacancyServiceImp implements VacancyService {
         response.setVacancy(vacancy);
         response.setAnswer(vacancyResponseDto.getAnswer());
         response.setAuthor(user);
+        response.setResponseState(ResponseState.WAITING);
 
         if (!file.isEmpty()) {
             try (InputStream io = file.getInputStream()) {
@@ -219,5 +221,47 @@ public class VacancyServiceImp implements VacancyService {
         vacancy.getSkills().remove(skill);
 
         return vacancyRepository.save(vacancy).toDto();
+    }
+
+    @Override
+    public VacancyResponseDto approve(Long id, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserByEmailNotFoundException(email));
+
+        VacancyResponse response = vacancyResponseRepository.findById(id)
+                .orElseThrow(() -> new VacancyResponseByIdNotFoundException(id));
+
+        Vacancy vacancy = response.getVacancy();
+        Organisation organisation = vacancy.getOrganisation();
+        if (organisation.getManageEmployees()
+                .stream()
+                .noneMatch(e -> Objects.equals(e.getId(), user.getId()))
+        ) {
+            throw new BaseException("Пользователь не работник организации");
+        }
+        response.setResponseState(ResponseState.APPROVED);
+
+        return vacancyResponseRepository.save(response).toDto();
+    }
+
+    @Override
+    public VacancyResponseDto reject(Long id, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserByEmailNotFoundException(email));
+
+        VacancyResponse response = vacancyResponseRepository.findById(id)
+                .orElseThrow(() -> new VacancyResponseByIdNotFoundException(id));
+
+        Vacancy vacancy = response.getVacancy();
+        Organisation organisation = vacancy.getOrganisation();
+        if (organisation.getManageEmployees()
+                .stream()
+                .noneMatch(e -> Objects.equals(e.getId(), user.getId()))
+        ) {
+            throw new BaseException("Пользователь не работник организации");
+        }
+        response.setResponseState(ResponseState.REJECTED);
+
+        return vacancyResponseRepository.save(response).toDto();
     }
 }

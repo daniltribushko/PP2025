@@ -24,6 +24,10 @@ public class VacancyResponse extends DBEntity implements DtoEntity<VacancyRespon
     @JoinColumn(name = "vacancy")
     private Vacancy vacancy;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ResponseState responseState;
+
     public VacancyResponse() {}
 
     public VacancyResponse(User author, DBFile resume, String answer, Vacancy vacancy) {
@@ -65,8 +69,16 @@ public class VacancyResponse extends DBEntity implements DtoEntity<VacancyRespon
         this.vacancy = vacancy;
     }
 
+    public ResponseState getResponseState() {
+        return responseState;
+    }
+
+    public void setResponseState(ResponseState responseState) {
+        this.responseState = responseState;
+    }
+
     @Override
     public VacancyResponseDto toDto() {
-        return new VacancyResponseDto(id, author.toDto(), resume.toDto(), answer);
+        return new VacancyResponseDto(id, author.toDto(), resume.toDto(), answer, responseState);
     }
 }

@@ -301,4 +301,88 @@ public class VacancyController {
     ) {
         return ResponseEntity.ok(vacancyService.getAll(title, skill, type, orgName, page, perPage));
     }
+
+    @Operation(summary = "Approve", description = "Принятие отклика")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200", description = "Отклик принят",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = VacancyResponseDto.class
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Пользователь не является сотрудником организации",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = ExceptionDTO.class
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404", description = "Пользователь или отклик не найдены",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = ExceptionDTO.class
+                                    )
+                            )
+                    )
+            }
+    )
+    @SecuredAdminUser
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<VacancyResponseDto> approve(
+            @PathVariable Long id,
+            Principal principal
+    ) {
+        return ResponseEntity.ok(vacancyService.approve(id, principal.getName()));
+    }
+
+    @Operation(summary = "Reject", description = "Отклонить отклик")
+    @SecuredAdminUser
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200", description = "Отклик отклонен",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = VacancyResponseDto.class
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Пользователь не является сотрудником организации",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = ExceptionDTO.class
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404", description = "Пользователь или отклик не найдены",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = ExceptionDTO.class
+                                    )
+                            )
+                    )
+            }
+    )
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<VacancyResponseDto> reject(
+            @PathVariable Long id,
+            Principal principal
+    ) {
+        return ResponseEntity.ok(vacancyService.reject(id, principal.getName()));
+    }
 }
