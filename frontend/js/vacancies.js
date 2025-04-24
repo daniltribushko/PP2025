@@ -49,7 +49,7 @@ async function displayVacancies(vacancies) {
                 if (response.author.id === currentUser.id) {
                     hasResponse = true;
                     responseId = response.id;
-                    responseStatus = response.responseState;
+                    responseStatus = response.state;
                     break;
                 }
             }
